@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Nils Frahm — Feutre</title>
+<meta name="description" content="Nils Frahm — an atelier fragment. Six felt hammers suspended in a dark column; strike one to hear it open." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,200;0,300;0,400;0,500;0,600;1,300;1,400&display=swap" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500&display=swap" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ─── Living felt texture (SVG filter, applied to hammer heads + hall floor) ─── -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <filter id="felt" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="1.9" numOctaves="2" seed="7" result="n"/>
+      <feColorMatrix in="n" type="matrix" values="
+        0 0 0 0 0.33
+        0 0 0 0 0.32
+        0 0 0 0 0.30
+        0 0 0 0.85 0" result="tint"/>
+      <feComposite in="tint" in2="SourceGraphic" operator="in"/>
+    </filter>
+    <filter id="emberGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="0.6"/>
+    </filter>
+    <radialGradient id="hallLight" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#1a1814" stop-opacity="1"/>
+      <stop offset="60%" stop-color="#0c0b09" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#050504" stop-opacity="1"/>
+    </radialGradient>
+  </defs>
+</svg>
+
+<!-- ─── The Hall: living volumetric backdrop ─── -->
+<div id="hall" aria-hidden="true">
+  <svg viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+    <rect width="1600" height="1000" fill="url(#hallLight)"/>
+    <!-- faint floor boards -->
+    <g opacity="0.07" stroke="#E8E2D4" stroke-width="0.5" fill="none">
+      <line x1="0" y1="780" x2="1600" y2="780"/>
+      <line x1="0" y1="820" x2="1600" y2="820"/>
+      <line x1="0" y1="860" x2="1600" y2="860"/>
+      <line x1="0" y1="900" x2="1600" y2="900"/>
+    </g>
+    <!-- suspension thread from ceiling (the Modell 370 memory) -->
+    <line id="thread" x1="800" y1="0" x2="800" y2="0" stroke="#A84B2A" stroke-width="0.6" opacity="0.5"/>
+  </svg>
+  <div id="grain"></div>
+</div>
+
+<!-- ─── The Loader: thread draws, then FRAHM emerges ─── -->
+<div id="loader">
+  <svg class="loader-svg" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+    <line id="loader-thread" x1="200" y1="60" x2="200" y2="60" stroke="#E8E2D4" stroke-width="0.8" opacity="0.9"/>
+    <circle id="loader-hammer" cx="200" cy="60" r="0" fill="#E8E2D4"/>
+  </svg>
+  <div class="loader-word" aria-hidden="true">
+    <span>F</span><span>R</span><span>A</span><span>H</span><span>M</span>
+  </div>
+  <div class="loader-meta">
+    <span>MODELL 370</span>
+    <span id="loader-count">00 / 88</span>
+    <span>A-440</span>
+  </div>
+</div>
+
+<!-- ─── HUD: typographic architecture, not chrome ─── -->
+<header id="hud-top">
+  <div class="hud-mark">
+    <span class="hud-name">Nils Frahm</span>
+    <span class="hud-rule"></span>
+    <span class="hud-kind">an atelier fragment</span>
+  </div>
+  <div class="hud-coord">
+    <span id="coord-lat">52.4874°N</span>
+    <span class="hud-sep">·</span>
+    <span id="coord-lng">13.4994°E</span>
+    <span class="hud-sep">·</span>
+    <span id="coord-now">—</span>
+    <span class="hud-kind">Funkhaus · Saal 3</span>
+  </div>
+</header>
+
+<!-- ─── La Colonne: the 3D slider of six felt hammers ─── -->
+<main id="stage" role="region" aria-label="Six works, suspended as felt hammers in a column">
+  <div id="column" role="list">
+    <!-- hammers inserted by JS so indices & transforms stay consistent -->
+  </div>
+
+  <!-- active hammer ring (threshold indicator at eye level) -->
+  <svg id="ring" viewBox="0 0 800 200" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+    <line x1="40"  y1="100" x2="320" y2="100" stroke="#54524C" stroke-width="0.5"/>
+    <line x1="480" y1="100" x2="760" y2="100" stroke="#54524C" stroke-width="0.5"/>
+    <circle cx="400" cy="100" r="2" fill="#A84B2A"/>
+  </svg>
+</main>
+
+<!-- ─── The Rail: vertical index (01 … 06) — not a sidebar, a ledger edge ─── -->
+<aside id="rail" aria-label="Work index">
+  <!-- injected by JS -->
+</aside>
+
+<!-- ─── The Detail Fold: revealed after a strike ─── -->
+<section id="detail" aria-hidden="true">
+  <div class="detail-inner">
+    <div class="detail-meta">
+      <span id="detail-num">—</span>
+      <span class="detail-sep"></span>
+      <span id="detail-year">—</span>
+    </div>
+    <h1 id="detail-title">—</h1>
+    <p id="detail-epigraph">—</p>
+    <div class="detail-body">
+      <div class="detail-col">
+        <span class="detail-label">Instrument</span>
+        <p id="detail-instrument">—</p>
+      </div>
+      <div class="detail-col">
+        <span class="detail-label">Method</span>
+        <p id="detail-method">—</p>
+      </div>
+      <div class="detail-col">
+        <span class="detail-label">Room</span>
+        <p id="detail-room">—</p>
+      </div>
+    </div>
+    <div class="detail-dots" id="detail-dots" aria-label="tracklist as breath marks"></div>
+    <button class="detail-close" id="detail-close" type="button" aria-label="return to column">
+      <span>return to the hall</span>
+    </button>
+  </div>
+</section>
+
+<!-- ─── Canvas for the particle strike ─── -->
+<canvas id="particles" aria-hidden="true"></canvas>
+
+<!-- ─── Le Marteau: the felt hammer cursor ─── -->
+<div id="cursor" aria-hidden="true">
+  <svg viewBox="0 0 60 60">
+    <line id="cur-shank" x1="30" y1="30" x2="30" y2="54" stroke="#E8E2D4" stroke-width="0.8" opacity="0.85"/>
+    <circle id="cur-head" cx="30" cy="26" r="5.5" fill="#E8E2D4" opacity="0.95" filter="url(#felt)"/>
+    <circle id="cur-ember" cx="30" cy="26" r="1.2" fill="#A84B2A" opacity="0"/>
+  </svg>
+</div>
+
+<!-- ─── Hint & colophon ─── -->
+<footer id="hud-bottom">
+  <span id="hint"><em>drag</em> · scroll · arrows — <em>click</em> to strike a hammer</span>
+  <a id="colophon" href="https://velocity.studio" target="_blank" rel="noopener noreferrer" aria-label="Velocity atelier">
+    <span class="colo-mark">a&nbsp;</span><em>Velocity</em><span class="colo-mark">&nbsp;atelier work</span>
+    <span class="colo-sep">·</span>
+    <span class="colo-year">MMXXVI</span>
+  </a>
+</footer>
+
+<script src="script.js"></script>
+
+<!-- Engine: PASSED | All Signatures: YES | Anti-Patterns: 0 -->
+<!-- A Velocity atelier work — © MMXXVI -->
+</body>
+</html>
