@@ -197,6 +197,7 @@ html, body {
 }
 
 #figure { transition: opacity 2s var(--ease-deep); }
+#dawn-ray { transition: opacity 3s var(--ease-deep); }
 
 /* ─── Time card (top-right, the editorial chyron) ───────────────────── */
 .timecard {
@@ -270,16 +271,23 @@ html, body {
 .prose-line {
   font-family: var(--serif);
   font-style: italic; font-weight: 200;
-  font-size: clamp(1.35rem, 2.6vw, 2.05rem);
-  line-height: 1.45;
+  font-size: clamp(1.35rem, 2.4vw, 1.95rem);
+  line-height: 1.55;
   color: var(--bone);
   letter-spacing: 0.005em;
-  display: inline-flex;
-  flex-wrap: wrap;
+  word-spacing: 0.02em;
+  text-wrap: pretty;
+  hyphens: none;
+  -webkit-hyphens: none;
 }
+/* a word is one indivisible unit — never breaks mid-word, ever */
+.prose-line .word {
+  display: inline-block;
+  white-space: nowrap;
+}
+.prose-line .ws { display: inline; white-space: normal; }
 .prose-line .ltr {
   display: inline-block;
-  white-space: pre;
   transition:
     transform 1.6s var(--ease-deep),
     opacity 1.6s var(--ease-deep),
@@ -416,28 +424,53 @@ html, body {
 
 /* ─── Mobile perfection ────────────────────────────────────────────── */
 @media (max-width: 820px) {
-  .frame { font-size: 0.6rem; }
-  .frame-tl, .frame-bl { left: 1rem; }
-  .frame-tr, .frame-br { right: 1rem; }
-  .frame-tl, .frame-tr { top: 1rem; }
-  .frame-bl { bottom: 7.4rem; }
-  .frame-br { bottom: 7.4rem; }
+  /* hall fills viewport with `meet` instead of `slice` to keep architecture readable */
+  #hall { width: 200%; height: 100%; left: -50%; }
 
-  .timecard { top: 2.6rem; right: 1rem; }
-  .time { font-size: 3.6rem; }
-  .arc-rule { width: 5rem; }
-  .time-arc { font-size: 0.58rem; }
+  .frame { font-size: 0.58rem; letter-spacing: 0.06em; }
+  .frame-tl, .frame-bl { left: 1.05rem; }
+  .frame-tr, .frame-br { right: 1.05rem; }
+  .frame-tl { top: 1.05rem; }
+  .frame-tr { display: none; } /* the timecard already carries place feeling */
+  .frame-bl { bottom: 5.6rem; }
+  .frame-br { bottom: 5.6rem; }
 
-  .prose-stage { left: 1rem; right: 1rem; bottom: 9rem; max-width: 100%; }
-  .prose-line { font-size: 1.15rem; }
+  .timecard { top: 1rem; right: 1.05rem; }
+  .time { font-size: clamp(2.6rem, 14vw, 4rem); letter-spacing: 0.02em; }
+  .arc-rule { width: 4.4rem; }
+  .time-arc { font-size: 0.54rem; gap: 0.5rem; letter-spacing: 0.16em; }
 
-  #rail { bottom: 5.6rem; gap: 0.5rem; padding: 0 0.6rem; }
-  .rail-tick { font-size: 0.5rem; letter-spacing: 0.14em; }
-  .rail-tick .tick-bar { width: 12px; }
-  .rail-tick.active .tick-bar { width: 22px; }
+  .prose-stage {
+    left: 1.05rem; right: 1.05rem; bottom: 7.6rem;
+    max-width: 100%;
+    gap: 0.7rem;
+  }
+  .prose-act { font-size: 0.62rem; letter-spacing: 0.16em; }
+  .prose-line { font-size: clamp(1.05rem, 4.6vw, 1.45rem); line-height: 1.55; }
+  .prose-cite { font-size: 0.62rem; letter-spacing: 0.14em; }
 
-  .invitation { flex-direction: column; gap: 0.4rem; bottom: 1rem; align-items: flex-start; }
-  #colophon { font-size: 0.6rem; }
+  /* compact rail: dots only, no per-tick time labels (the timecard shows the time) */
+  #rail { bottom: 4rem; gap: 0.55rem; padding: 0 0.6rem; justify-content: center; }
+  .rail-tick { font-size: 0; }
+  .rail-tick .tick-time { display: none; }
+  .rail-tick .tick-bar { width: 10px; height: 1px; }
+  .rail-tick.active .tick-bar { width: 22px; height: 1.5px; }
+
+  .invitation {
+    flex-direction: column; gap: 0.3rem; bottom: 0.95rem;
+    align-items: flex-start; padding: 0 1.05rem;
+  }
+  #invite { font-size: 0.6rem; }
+  .invite-key { display: none; }
+  #colophon { font-size: 0.58rem; gap: 0.5rem; }
+  #colophon .colo-sep { width: 0.9rem; }
+}
+
+/* very small phones: protect prose from being cropped */
+@media (max-width: 380px) {
+  .prose-stage { bottom: 7rem; }
+  .prose-line { font-size: 1rem; line-height: 1.5; }
+  .frame-tl { font-size: 0.54rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

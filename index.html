@@ -179,10 +179,24 @@
 
     <!-- A figure: a single seated silhouette at the piano. Appears in act 'felt' onward, fades out at 'departure'. -->
     <g id="figure" opacity="0">
-      <ellipse cx="1304" cy="640" rx="14" ry="6" fill="var(--ink)"/>
-      <path d="M1294,640 Q1290,604 1304,594 Q1318,604 1314,640 Z" fill="var(--ink)"/>
-      <circle cx="1304" cy="588" r="6" fill="var(--ink)"/>
-      <line x1="1304" y1="606" x2="1322" y2="654" stroke="var(--ink)" stroke-width="0.7"/>
+      <!-- stool -->
+      <rect x="1290" y="650" width="22" height="3" fill="var(--ink)"/>
+      <line x1="1292" y1="653" x2="1292" y2="688" stroke="var(--ink)" stroke-width="0.5"/>
+      <line x1="1310" y1="653" x2="1310" y2="688" stroke="var(--ink)" stroke-width="0.5"/>
+      <!-- back -->
+      <path d="M1296,652 C1294,634 1292,612 1298,598" fill="none" stroke="var(--ink)" stroke-width="1.1" stroke-linecap="round"/>
+      <!-- shoulders + arm reaching to the keys -->
+      <path d="M1298,598 C1306,594 1316,604 1326,628" fill="none" stroke="var(--ink)" stroke-width="1.1" stroke-linecap="round"/>
+      <!-- head: small circle -->
+      <circle cx="1300" cy="592" r="4.5" fill="var(--ink)"/>
+      <!-- hand at the keys -->
+      <circle cx="1326" cy="660" r="1.6" fill="var(--ink)"/>
+    </g>
+
+    <!-- Dawn ray: a soft light shaft from the right-most window across the floor. Visible only in act vii (day) and viii (departure). -->
+    <g id="dawn-ray" opacity="0">
+      <polygon points="1285,600 1380,600 1100,890 800,890" fill="var(--dawn)" opacity="0.10"/>
+      <polygon points="1305,600 1360,600 1180,890 940,890" fill="var(--dawn)" opacity="0.06"/>
     </g>
 
     <!-- Floor cantus rule (subtle horizon mark) -->

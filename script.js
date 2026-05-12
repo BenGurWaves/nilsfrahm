@@ -104,6 +104,7 @@ const wash      = document.getElementById('hallWash');
 const hallSvg   = document.getElementById('hall');
 const wave      = document.getElementById('wave');
 const figure    = document.getElementById('figure');
+const dawnRay   = document.getElementById('dawn-ray');
 const lampHalo  = document.getElementById('lamp-halo');
 const cursor    = document.getElementById('cursor');
 const time      = document.getElementById('time');
@@ -166,9 +167,15 @@ function applyLight(a) {
 }
 
 function setProseLetters(el, str) {
-  el.innerHTML = [...str].map((ch, k) => {
-    const c = ch === ' ' ? '&nbsp;' : ch;
-    return `<span class="ltr" style="--li:${k}">${c}</span>`;
+  let gi = 0;
+  el.innerHTML = str.split(/(\s+)/).map(part => {
+    if (/^\s+$/.test(part)) return '<span class="ws"> </span>';
+    const inner = [...part].map(ch => {
+      const html = `<span class="ltr" style="--li:${gi}">${ch}</span>`;
+      gi += 1;
+      return html;
+    }).join('');
+    return `<span class="word">${inner}</span>`;
   }).join('');
 }
 
@@ -202,7 +209,11 @@ function applyAct(i, instant = false) {
   /* lamp halo intensity (loudest at the end of night, dimmer at dawn) */
   if (lampHalo) {
     if (a.waveform === 'day' || a.waveform === 'departure') lampHalo.setAttribute('opacity', '0.35');
-    else lampHalo.setAttribute('opacity', '1');
+    else lampHalo.setAttribute('opacity', '0.95');
+  }
+  /* dawn ray: only visible in the last two acts */
+  if (dawnRay) {
+    dawnRay.setAttribute('opacity', (a.waveform === 'day' || a.waveform === 'departure') ? '1' : '0');
   }
 
   /* prose dispersion / arrival */
@@ -291,9 +302,10 @@ function loop() {
   cx += (mx - cx) * 0.18;
   cy += (my - cy) * 0.18;
   cursor.style.transform = `translate(${cx}px, ${cy}px)`;
-  /* parallax: shift hall slightly opposite cursor */
-  const px = (mx / innerWidth  - 0.5) * -14;
-  const py = (my / innerHeight - 0.5) * -8;
+  /* parallax: shift hall slightly opposite cursor (smaller magnitude on phones) */
+  const phone = innerWidth < 820;
+  const px = (mx / innerWidth  - 0.5) * (phone ? -6 : -14);
+  const py = (my / innerHeight - 0.5) * (phone ? -3 : -8);
   hallSvg.style.transform = `translate3d(${px}px, ${py}px, 0)`;
   requestAnimationFrame(loop);
 }
