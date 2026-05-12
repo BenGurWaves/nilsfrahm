@@ -1,32 +1,42 @@
 /* ───────────────────────────────────────────────────────────────────────
-   Nils Frahm — La Pédale
-   A hushed page. Six works, held. The pedal is the cursor.
-   Palette: Pianissimo — bone on warm-black, one bordeaux mark.
-   Type: Spectral italic, Light. No mono. No sans. No noise.
+   Nils Frahm — Nuit Funkhaus
+   One night at Saal 3, drawn entirely in code.
+   Eight acts from dusk to dawn. The hall transforms in real time.
+   Palette: Nuit Funkhaus.  Type: Spectral.  Grammar: Une Nuit (the night).
    ─────────────────────────────────────────────────────────────────────── */
 
 :root {
-  --paper:    #0E0D0B;     /* the room */
-  --paper-2:  #15130F;     /* slightly lifted */
-  --bone:     #EAE5DA;     /* the type */
-  --bone-2:   #C9C4B8;     /* second voice */
-  --whisper:  #6B665E;     /* hairlines, frame */
-  --whisper-2:#3E3B36;     /* the silent baseline */
-  --bordeaux: #6E2A2A;     /* the single mark */
+  /* Nuit Funkhaus palette */
+  --night:    #0A0E16;      /* the sky outside */
+  --hall:     #14110D;      /* the room interior */
+  --hall-2:   #1B1813;      /* near the lamp */
+  --bone:     #EAE5DA;      /* type, brightest light */
+  --bone-2:   #A89E8E;      /* secondary */
+  --ink:      #4F4A41;      /* architectural lines */
+  --ink-2:    #2E2A24;      /* secondary lines */
+  --whisper:  #6B655A;      /* frame text */
+  --bordeaux: #8C2E2C;      /* the waveform, the single mark */
+  --lamp-shade:   #2a241c;
+  --lamp-glow:    #f0c684;  /* warm amber, only light */
+  --dawn:     #d6b78c;      /* end-of-night accent */
+
+  /* per-act window light (set on body via data-act) */
+  --win-top:    #c98a4d;
+  --win-bottom: #4a2a1a;
+  --sky-top:    #2b1812;
+  --sky-bottom: #0a0a0e;
+  --hall-tint:  rgba(232,180,120,0.04);
 
   --serif: 'Spectral', 'Times New Roman', serif;
-
   --ease: cubic-bezier(.22,.61,.36,1);
   --ease-deep: cubic-bezier(.16,.84,.24,1);
-
-  --reso: 340px;           /* radius of the held resonance */
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
   height: 100%;
-  background: var(--paper);
+  background: var(--night);
   color: var(--bone);
   font-family: var(--serif);
   font-weight: 300;
@@ -36,352 +46,332 @@ html, body {
   cursor: none;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 2.4s var(--ease-deep);
 }
-
 @media (hover: none) { html, body { cursor: auto; } }
 
-/* ─── The Hall: warm volumetric room ─────────────────────────────────── */
-#hall {
-  position: fixed; inset: 0; z-index: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(ellipse 90% 70% at 50% 38%, #1a1815 0%, var(--paper) 65%, #07060500 100%),
-    var(--paper);
-}
-.hall-bloom {
-  position: absolute; inset: -10%;
-  background: radial-gradient(ellipse 40% 28% at 50% 50%, rgba(234,229,218,0.04), transparent 70%);
-  filter: blur(40px);
-}
-.hall-grain {
-  position: absolute; inset: 0;
-  background-image:
-    radial-gradient(0.6px 0.6px at 20% 30%, rgba(234,229,218,0.04) 50%, transparent 51%),
-    radial-gradient(0.6px 0.6px at 70% 60%, rgba(234,229,218,0.025) 50%, transparent 51%),
-    radial-gradient(0.6px 0.6px at 45% 85%, rgba(234,229,218,0.02) 50%, transparent 51%);
-  background-size: 4px 4px, 6px 6px, 8px 8px;
-  mix-blend-mode: screen;
-  opacity: 0.5;
+/* ─── Sky behind the hall (changes with time of night) ──────────────── */
+.sky {
+  position: fixed; inset: 0;
+  z-index: 0;
+  background: linear-gradient(to bottom, var(--sky-top) 0%, var(--sky-bottom) 70%);
+  transition: background 3s var(--ease-deep);
 }
 
-/* ─── Loader ────────────────────────────────────────────────────────── */
-#loader {
+/* ─── Hall warm wash (lamp interior glow) ──────────────────────────── */
+.hall-wash {
   position: fixed; inset: 0;
-  z-index: 50;
-  background: var(--paper);
+  z-index: 1;
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 32%, var(--hall-tint), transparent 70%),
+    radial-gradient(ellipse 100% 80% at 50% 100%, rgba(0,0,0,0.5), transparent 70%);
+  pointer-events: none;
+  transition: background 3s var(--ease-deep);
+}
+
+/* ─── grain overlay ─────────────────────────────────────────────────── */
+.grain {
+  position: fixed; inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  opacity: 0.35;
+  background-image:
+    radial-gradient(0.5px 0.5px at 17% 23%, rgba(234,229,218,0.5) 50%, transparent 51%),
+    radial-gradient(0.5px 0.5px at 71% 49%, rgba(234,229,218,0.4) 50%, transparent 51%),
+    radial-gradient(0.5px 0.5px at 41% 79%, rgba(234,229,218,0.3) 50%, transparent 51%),
+    radial-gradient(0.5px 0.5px at 88% 12%, rgba(234,229,218,0.4) 50%, transparent 51%);
+  background-size: 5px 5px, 7px 7px, 9px 9px, 11px 11px;
+}
+
+/* ─── Loader: the doors part ───────────────────────────────────────── */
+#loader {
+  position: fixed; inset: 0; z-index: 60;
+  background: var(--night);
   display: grid; place-items: center;
-  transition: opacity 1.6s var(--ease), visibility 1.6s;
+  transition: opacity 2s var(--ease), visibility 2s;
 }
 #loader.gone { opacity: 0; visibility: hidden; }
 .loader-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-.loader-word {
+
+.loader-block {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; gap: 1.4rem;
+  text-align: center;
+}
+.loader-time {
   font-family: var(--serif);
-  font-style: italic; font-weight: 200;
-  font-size: clamp(2.4rem, 6.5vw, 5.6rem);
-  letter-spacing: 0.04em;
+  font-style: normal; font-weight: 500;
+  font-size: clamp(4rem, 11vw, 9rem);
+  font-feature-settings: 'lnum' 1;
+  letter-spacing: 0.03em;
   color: var(--bone);
   opacity: 0;
-  transform: translateY(8px);
+  transform: translateY(10px);
   filter: blur(10px);
-  transition: opacity 1.8s var(--ease) .2s, transform 1.8s var(--ease) .2s, filter 1.8s var(--ease) .2s;
+  transition: opacity 2s var(--ease) .2s, transform 2s var(--ease) .2s, filter 2s var(--ease) .2s;
+  line-height: 1;
 }
-.loader-word.lit { opacity: 0.92; transform: translateY(0); filter: blur(0); }
+.loader-place {
+  font-family: var(--serif);
+  font-style: italic; font-weight: 300;
+  font-size: 0.84rem;
+  letter-spacing: 0.18em;
+  color: var(--whisper);
+  text-transform: lowercase;
+  opacity: 0;
+  transition: opacity 1.8s var(--ease) 1s;
+}
+.loader-place em { color: var(--bone-2); font-style: italic; }
+.loader-line {
+  font-family: var(--serif);
+  font-style: italic; font-weight: 300;
+  font-size: 0.94rem;
+  color: var(--bone-2);
+  letter-spacing: 0.02em;
+  opacity: 0;
+  transform: translateY(8px);
+  filter: blur(6px);
+  transition: opacity 2s var(--ease) 1.6s, transform 2s var(--ease) 1.6s, filter 2s var(--ease) 1.6s;
+  max-width: 32ch;
+}
+#loader.lit .loader-time,
+#loader.lit .loader-line { opacity: 1; transform: translateY(0); filter: blur(0); }
+#loader.lit .loader-place { opacity: 0.8; }
 
-/* ─── Frame: italic, low-contrast ─────────────────────────────────── */
+/* ─── Frame: italic, low-contrast ──────────────────────────────────── */
 .frame {
   position: fixed; inset: 0;
-  z-index: 5;
+  z-index: 30;
   pointer-events: none;
   font-style: italic; font-weight: 300;
-  color: var(--whisper);
   font-size: 0.78rem;
   letter-spacing: 0.04em;
+  color: var(--whisper);
   opacity: 0;
-  transition: opacity 1.8s var(--ease) .8s;
+  transition: opacity 2s var(--ease) .8s;
 }
 .frame.visible { opacity: 1; }
 .frame > span { position: absolute; }
+.frame em { color: var(--bone-2); font-style: italic; }
 .frame-tl { top: 1.6rem; left: 1.8rem; }
 .frame-tr { top: 1.6rem; right: 1.8rem; }
-.frame-bl { bottom: 1.6rem; left: 1.8rem; font-feature-settings: 'lnum' 1; }
-.frame-br { bottom: 1.6rem; right: 1.8rem; font-feature-settings: 'lnum' 1; }
-.frame em { color: var(--bone-2); font-style: italic; }
+.frame-bl { bottom: 4.4rem; left: 1.8rem; }
+.frame-br { bottom: 4.4rem; right: 1.8rem; font-feature-settings: 'lnum' 1; }
 
-/* ─── The page: asymmetric editorial proportion (golden offset) ─── */
-#page {
-  position: fixed; inset: 0;
-  z-index: 10;
-  display: grid;
-  grid-template-columns: 38vw 1fr 22vw;
-  grid-template-rows: 1fr auto 1fr;
-  align-items: center;
-  padding: 6rem 0;
+/* ─── Hall stage: full viewport SVG drawing ────────────────────────── */
+#hall-stage {
+  position: fixed; inset: 0; z-index: 5;
   opacity: 0;
-  transition: opacity 2s var(--ease) 1s;
+  transition: opacity 2.4s var(--ease) 1.2s;
 }
-#page.visible { opacity: 1; }
+#hall-stage.visible { opacity: 1; }
 
-/* a faint horizontal rule running through the page (the cantus) */
-.cantus-rule {
-  grid-column: 1 / -1;
-  grid-row: 2;
-  height: 1px;
-  align-self: center;
-  position: relative;
+#hall {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  transition: transform 1.4s var(--ease-deep);
+  will-change: transform;
+}
+
+.windows .win rect,
+.windows .win path { transition: fill 3s var(--ease-deep); }
+.windows .win line,
+.windows .win path[fill="none"] { transition: opacity 3s var(--ease-deep); }
+
+#wave {
+  transition: d 2s var(--ease-deep), stroke 2.4s var(--ease-deep), opacity 2s var(--ease-deep);
+}
+
+#lamp {
+  transform-origin: 800px 0;
+  animation: lampswing 10s ease-in-out infinite alternate;
+}
+@keyframes lampswing {
+  0%   { transform: rotate(-0.6deg); }
+  100% { transform: rotate( 0.6deg); }
+}
+
+#lamp-halo {
+  transition: opacity 2s var(--ease-deep);
+}
+
+#figure { transition: opacity 2s var(--ease-deep); }
+
+/* ─── Time card (top-right, the editorial chyron) ───────────────────── */
+.timecard {
+  position: fixed;
+  top: 4.6rem; right: 1.8rem;
+  z-index: 22;
+  text-align: right;
   pointer-events: none;
+  opacity: 0;
+  transition: opacity 2.4s var(--ease) 1.4s;
 }
-.cantus-rule span {
-  position: absolute;
-  left: 0; right: 0;
-  top: 50%;
-  height: 1px;
-  background: linear-gradient(to right,
-    transparent 0%,
-    var(--whisper-2) 12%,
-    var(--whisper-2) 88%,
-    transparent 100%);
-  opacity: 0.5;
-  transform: translateY(-0.5px);
-}
+.timecard.visible { opacity: 1; }
 
-/* ─── La Pédale: the works column ─────────────────────────────────── */
-#works {
-  list-style: none;
-  grid-column: 2;
-  grid-row: 1 / -1;
-  align-self: center;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.4rem;
-  padding-left: 0;
-}
-
-.work {
-  position: relative;
-  display: flex;
-  align-items: baseline;
-  gap: 1.6rem;
-  cursor: none;
-  padding: 0.2rem 0;
-  transition:
-    color 1.2s var(--ease),
-    opacity 1.4s var(--ease-deep),
-    filter 1.4s var(--ease-deep),
-    transform 1.4s var(--ease-deep);
-  /* default: whispered, blurred, low-opacity (the room is silent) */
-  opacity: 0.18;
-  filter: blur(2px);
-  color: var(--bone-2);
-}
-
-.work .w-num {
+.time {
   font-family: var(--serif);
+  font-style: normal;
+  font-weight: 500;
+  font-size: clamp(4rem, 9vw, 8rem);
+  font-feature-settings: 'lnum' 1;
+  letter-spacing: 0.025em;
+  color: var(--bone);
+  line-height: 0.92;
+  filter: drop-shadow(0 1px 0 rgba(0,0,0,0.4));
+  transition: color 3s var(--ease-deep);
+}
+.time-arc {
+  display: flex; justify-content: flex-end; align-items: center; gap: 0.7rem;
   font-style: italic; font-weight: 300;
-  font-size: 0.78rem;
+  font-size: 0.7rem;
   color: var(--whisper);
-  letter-spacing: 0.06em;
-  font-feature-settings: 'onum' 1, 'lnum' 0;
-  min-width: 1.6em;
+  letter-spacing: 0.18em;
+  margin-top: 0.3rem;
+}
+.arc-rule {
+  position: relative;
+  width: 9rem; height: 1px;
+  background: var(--ink);
+  overflow: visible;
+}
+.arc-rule span {
+  position: absolute;
+  left: 0; top: -2.5px;
+  width: 0; height: 5px;
+  background: var(--bordeaux);
+  transition: width 1.8s var(--ease-deep);
 }
 
-.work .w-title {
+/* ─── Prose stage ──────────────────────────────────────────────────── */
+.prose-stage {
+  position: fixed;
+  left: 6vw; bottom: 7.4rem;
+  max-width: 56ch;
+  z-index: 25;
+  display: flex; flex-direction: column; gap: 0.9rem;
+  opacity: 0;
+  transition: opacity 2.4s var(--ease) 1.6s;
+}
+.prose-stage.visible { opacity: 1; }
+
+.prose-act {
+  display: flex; gap: 0.9rem; align-items: baseline;
+  font-style: italic; font-weight: 300;
+  font-size: 0.74rem;
+  color: var(--whisper);
+  letter-spacing: 0.18em;
+  text-transform: lowercase;
+}
+.act-num { color: var(--bordeaux); font-style: italic; font-feature-settings: 'lnum' 0; }
+.act-name { color: var(--bone-2); }
+
+.prose-line {
   font-family: var(--serif);
   font-style: italic; font-weight: 200;
-  font-size: clamp(1.6rem, 3.4vw, 2.6rem);
-  letter-spacing: 0.005em;
-  line-height: 1.1;
-  color: inherit;
-  /* dispersion-ready: each letter is a span */
-  display: inline-flex;
-}
-.work .w-title .ltr {
-  display: inline-block;
-  transform: translate(0,0);
-  transition: transform 1.6s var(--ease-deep), opacity 1.6s var(--ease-deep), filter 1.6s var(--ease-deep);
-  will-change: transform, opacity, filter;
-}
-
-.work .w-year {
-  font-family: var(--serif);
-  font-style: italic; font-weight: 300;
-  font-size: 0.78rem;
-  color: var(--whisper);
-  font-feature-settings: 'lnum' 1;
-  letter-spacing: 0.04em;
-}
-
-.work .w-mark {
-  position: absolute;
-  left: -1.4rem;
-  top: 50%;
-  width: 5px; height: 5px;
-  border-radius: 50%;
-  background: var(--bordeaux);
-  transform: translateY(-50%) scale(0);
-  transition: transform 1.4s var(--ease-deep);
-}
-
-/* the active work: clarified, brighter, slightly larger, mark visible */
-.work.active {
-  opacity: 1;
-  filter: blur(0);
+  font-size: clamp(1.35rem, 2.6vw, 2.05rem);
+  line-height: 1.45;
   color: var(--bone);
+  letter-spacing: 0.005em;
+  display: inline-flex;
+  flex-wrap: wrap;
 }
-.work.active .w-title { font-size: clamp(2.4rem, 5.2vw, 4.2rem); }
-.work.active .w-mark { transform: translateY(-50%) scale(1); }
-.work.active .w-num,
-.work.active .w-year { color: var(--bone-2); }
-
-/* dispersing (transitioning out): letters drift apart their own kerning + fade */
-.work.dispersing .w-title .ltr {
-  opacity: 0;
-  filter: blur(6px);
-  /* per-letter translateX is set inline by JS based on index */
+.prose-line .ltr {
+  display: inline-block;
+  white-space: pre;
+  transition:
+    transform 1.6s var(--ease-deep),
+    opacity 1.6s var(--ease-deep),
+    filter 1.6s var(--ease-deep);
 }
-
-/* arriving (transitioning in): letters arrive from blur-up */
-.work.arriving .w-title .ltr {
-  animation: arrive 1.6s var(--ease-deep) forwards;
-  animation-delay: calc(var(--li) * 38ms);
+.prose-line.dispersing .ltr {
   opacity: 0;
   filter: blur(8px);
-  transform: translateY(-12px);
+}
+.prose-line.arriving .ltr {
+  animation: arrive 1.5s var(--ease-deep) forwards;
+  animation-delay: calc(var(--li) * 22ms);
+  opacity: 0;
+  filter: blur(8px);
+  transform: translateY(-10px);
 }
 @keyframes arrive {
-  0%   { opacity: 0; filter: blur(8px); transform: translateY(-12px); }
+  0%   { opacity: 0; filter: blur(8px); transform: translateY(-10px); }
   60%  { opacity: 1; filter: blur(2px); }
   100% { opacity: 1; filter: blur(0);   transform: translateY(0); }
 }
 
-/* depth-of-field on neighbours (proximity-graded blur) — Y-axis sheet music turning */
-.work[data-dist="1"] { opacity: 0.34; filter: blur(1.4px); }
-.work[data-dist="2"] { opacity: 0.20; filter: blur(2.2px); }
-.work[data-dist="3"] { opacity: 0.12; filter: blur(3.0px); }
-.work[data-dist="4"] { opacity: 0.08; filter: blur(3.6px); }
-.work[data-dist="5"] { opacity: 0.06; filter: blur(4.0px); }
-
-/* hover (without pedal): the smallest acknowledgment */
-.work:hover .w-title { color: var(--bone); }
-
-/* ─── Caption (epigraph + meta beneath active) ────────────────────── */
-#caption {
-  grid-column: 2;
-  grid-row: 3;
-  align-self: center;
-  max-width: 56ch;
-  padding-left: 4rem;
-  margin-top: 1.2rem;
-  opacity: 0;
-  transform: translateY(8px);
-  transition: opacity 1.8s var(--ease) .4s, transform 1.8s var(--ease) .4s;
-}
-#caption.visible { opacity: 1; transform: translateY(0); }
-
-#cap-epigraph {
-  font-family: var(--serif);
-  font-style: italic; font-weight: 300;
-  font-size: 1.05rem;
-  line-height: 1.7;
-  color: var(--bone-2);
-  letter-spacing: 0.005em;
-}
-#cap-epigraph em {
-  font-style: italic;
-  color: var(--bone);
-  font-weight: 300;
-}
-#cap-meta {
-  margin-top: 1.2rem;
-  display: flex; align-items: center; gap: 1rem;
+.prose-cite {
   font-family: var(--serif);
   font-style: italic; font-weight: 300;
   font-size: 0.74rem;
   color: var(--whisper);
-  letter-spacing: 0.06em;
+  letter-spacing: 0.16em;
 }
-.cap-sep {
-  width: 1.8rem; height: 1px;
-  background: var(--whisper-2);
-}
+.prose-cite em { color: var(--bordeaux); font-style: italic; }
 
-/* ─── Resonance: sustain line + halo (revealed only while pedal held) ─ */
-#resonance {
-  position: fixed; inset: 0;
-  z-index: 8;
+/* ─── Rail ─────────────────────────────────────────────────────────── */
+#rail {
+  position: fixed;
+  bottom: 4.8rem; left: 0; right: 0;
+  z-index: 26;
+  display: flex; justify-content: center; gap: 1.2rem;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 600ms var(--ease);
+  transition: opacity 2s var(--ease) 1.8s;
 }
-body.pedal #resonance { opacity: 1; }
+#rail.visible { opacity: 1; }
 
-.res-line {
-  position: absolute;
-  height: 1px;
-  background: linear-gradient(to right, transparent, rgba(234,229,218,0.55), transparent);
-  top: 50%;
-  width: 0;
-  transition: width 1.4s var(--ease-deep);
+.rail-tick {
+  display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+  font-family: var(--serif);
+  font-style: italic; font-weight: 300;
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  color: var(--whisper-2, #3e3933);
+  pointer-events: auto;
+  cursor: none;
+  background: none; border: 0; padding: 0;
+  transition: color .8s var(--ease);
+  font-feature-settings: 'lnum' 1;
 }
-.res-l { right: 50%; transform-origin: right; }
-.res-r { left: 50%;  transform-origin: left; }
-body.pedal .res-l,
-body.pedal .res-r { width: 50%; transition: width 1.6s var(--ease-deep); }
-
-.res-halo {
-  position: absolute;
-  width: calc(var(--reso) * 2);
-  height: calc(var(--reso) * 2);
-  margin-left: calc(-1 * var(--reso));
-  margin-top:  calc(-1 * var(--reso));
-  border-radius: 50%;
-  background: radial-gradient(circle,
-    rgba(234,229,218,0.10) 0%,
-    rgba(234,229,218,0.04) 35%,
-    transparent 65%);
-  filter: blur(6px);
-  opacity: 0;
-  transition: opacity 1.2s var(--ease);
+.rail-tick .tick-bar {
+  width: 18px; height: 1px;
+  background: var(--ink);
+  transition: width 1s var(--ease-deep), background 1s var(--ease);
 }
-body.pedal .res-halo { opacity: 1; }
+.rail-tick.active { color: var(--bone); }
+.rail-tick.active .tick-bar { width: 38px; background: var(--bordeaux); }
+.rail-tick.passed { color: var(--bone-2); }
+.rail-tick.passed .tick-bar { background: var(--bone-2); }
+.rail-tick:hover { color: var(--bone-2); }
 
-/* When pedal is held, the entire works column lifts to clarity within radius
-   — implemented via JS adding/removing per-work .heard class */
-body.pedal .work.heard {
-  opacity: 1 !important;
-  filter: blur(0) !important;
-  color: var(--bone);
-}
-
-/* ─── Invitation + colophon ────────────────────────────────────────── */
+/* ─── Invitation + colophon ───────────────────────────────────────── */
 .invitation {
   position: fixed;
   bottom: 1.6rem; left: 0; right: 0;
-  z-index: 12;
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
+  z-index: 28;
+  display: flex; justify-content: space-between; align-items: baseline;
   padding: 0 1.8rem;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 2s var(--ease) 1.6s;
+  transition: opacity 2s var(--ease) 2s;
 }
 .invitation.visible { opacity: 1; }
 
 #invite {
-  font-family: var(--serif);
   font-style: italic; font-weight: 300;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   color: var(--whisper);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
 }
-#invite em { color: var(--bone); font-style: italic; }
-.invite-key { color: var(--whisper-2); margin-left: 0.5rem; }
+#invite em { color: var(--bone-2); font-style: italic; }
+.invite-key { color: var(--whisper-2, #3e3933); margin-left: 0.5rem; }
 
 #colophon {
   pointer-events: auto;
   display: flex; align-items: baseline; gap: 0.7rem;
-  font-family: var(--serif);
   font-style: italic; font-weight: 300;
   font-size: 0.74rem;
   letter-spacing: 0.04em;
@@ -392,76 +382,68 @@ body.pedal .work.heard {
 }
 #colophon:hover { color: var(--bone); }
 #colophon em { color: var(--bone-2); font-style: italic; }
-#colophon .colo-sep {
-  width: 1.4rem; height: 1px;
-  background: var(--bordeaux);
-}
+#colophon .colo-sep { width: 1.4rem; height: 1px; background: var(--bordeaux); }
 #colophon .colo-year { font-feature-settings: 'lnum' 1; letter-spacing: 0.16em; color: var(--whisper); }
 
-/* ─── Cursor: la touche ────────────────────────────────────────────── */
+/* ─── Cursor: la veilleuse, the candle ─────────────────────────────── */
 #cursor {
   position: fixed; top: 0; left: 0;
-  width: 0; height: 0;
   z-index: 100;
   pointer-events: none;
-  transition: transform 80ms var(--ease);
+  width: 0; height: 0;
 }
-.cur-baton {
+.cur-flame {
   position: absolute;
-  left: 0; top: -10px;
-  width: 1px; height: 22px;
-  background: var(--bone);
-  opacity: 0.85;
-  transform-origin: 50% 0;
-  transition: height 0.6s var(--ease), opacity 0.4s ease;
+  left: -1.5px; top: -10px;
+  width: 3px; height: 12px;
+  background: radial-gradient(ellipse at 50% 80%, var(--lamp-glow) 0%, rgba(240,198,132,0) 70%);
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  filter: blur(0.3px);
+  animation: flicker 1.6s ease-in-out infinite alternate;
+}
+@keyframes flicker {
+  0%   { transform: scaleY(1)   translateY(0)  rotate(-1deg); opacity: 0.92; }
+  100% { transform: scaleY(1.1) translateY(-1px) rotate(1.6deg); opacity: 1; }
 }
 .cur-halo {
   position: absolute;
-  left: -22px; top: -22px;
-  width: 44px; height: 44px;
+  left: -32px; top: -32px;
+  width: 64px; height: 64px;
   border-radius: 50%;
-  border: 1px solid var(--bone);
-  opacity: 0;
-  transform: scale(0.7);
-  transition: opacity 1s var(--ease), transform 1.2s var(--ease-deep);
+  background: radial-gradient(circle, rgba(240,198,132,0.18) 0%, rgba(240,198,132,0.05) 35%, transparent 70%);
+  filter: blur(2px);
 }
-body.pedal .cur-baton { height: 36px; opacity: 1; top: -18px; }
-body.pedal .cur-halo  { opacity: 0.18; transform: scale(1.2); }
-
-@media (hover: none) { #cursor { display: none; } }
 
 /* ─── Mobile perfection ────────────────────────────────────────────── */
 @media (max-width: 820px) {
-  :root { --reso: 240px; }
-  .frame { font-size: 0.62rem; }
+  .frame { font-size: 0.6rem; }
   .frame-tl, .frame-bl { left: 1rem; }
   .frame-tr, .frame-br { right: 1rem; }
   .frame-tl, .frame-tr { top: 1rem; }
-  .frame-bl, .frame-br { bottom: 1rem; }
-  #page {
-    grid-template-columns: 1fr;
-    padding: 6rem 1.6rem;
-    grid-template-rows: 1fr auto auto;
-  }
-  #works { grid-column: 1; }
-  #caption { grid-column: 1; padding-left: 0; max-width: 100%; }
-  .work { gap: 0.9rem; }
-  .work .w-num { font-size: 0.62rem; }
-  .work .w-year { font-size: 0.62rem; }
-  .work.active .w-title { font-size: 2.4rem; }
-  .invitation {
-    flex-direction: column; gap: 0.6rem; bottom: 0.9rem;
-    align-items: flex-start;
-  }
+  .frame-bl { bottom: 7.4rem; }
+  .frame-br { bottom: 7.4rem; }
+
+  .timecard { top: 2.6rem; right: 1rem; }
+  .time { font-size: 3.6rem; }
+  .arc-rule { width: 5rem; }
+  .time-arc { font-size: 0.58rem; }
+
+  .prose-stage { left: 1rem; right: 1rem; bottom: 9rem; max-width: 100%; }
+  .prose-line { font-size: 1.15rem; }
+
+  #rail { bottom: 5.6rem; gap: 0.5rem; padding: 0 0.6rem; }
+  .rail-tick { font-size: 0.5rem; letter-spacing: 0.14em; }
+  .rail-tick .tick-bar { width: 12px; }
+  .rail-tick.active .tick-bar { width: 22px; }
+
+  .invitation { flex-direction: column; gap: 0.4rem; bottom: 1rem; align-items: flex-start; }
   #colophon { font-size: 0.6rem; }
-  #colophon .colo-sep { width: 0.8rem; }
 }
 
-/* reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  .work { transition: opacity 200ms ease, color 200ms ease; }
-  .work .w-title .ltr { transition: opacity 200ms ease; }
-  .work.arriving .w-title .ltr { animation: none; opacity: 1; transform: none; filter: none; }
+  #lamp { animation: none; }
+  .cur-flame { animation: none; }
+  .prose-line.arriving .ltr { animation: none; opacity: 1; transform: none; filter: none; }
 }
 
 /* A Velocity atelier work — © MMXXVI */

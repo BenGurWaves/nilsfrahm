@@ -3,70 +3,221 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Nils Frahm — la pédale</title>
-<meta name="description" content="Nils Frahm, six works. Hold the sustain pedal to make the room resonate." />
+<title>Nils Frahm — une nuit à Saal 3</title>
+<meta name="description" content="One night with Nils Frahm at Saal 3, Funkhaus Berlin. Eight acts from dusk to dawn." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,200;0,300;0,400;1,200;1,300;1,400&display=swap" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,200;0,300;0,400;0,500;0,600;1,200;1,300;1,400&display=swap" />
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<!-- ─── The Hall: a near-imperceptible volumetric warmth ─── -->
-<div id="hall" aria-hidden="true">
-  <div class="hall-bloom"></div>
-  <div class="hall-grain"></div>
-</div>
-
-<!-- ─── Loader: the cantus firmus ─── -->
-<div id="loader">
-  <svg class="loader-svg" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-    <line id="cantus" x1="120" y1="300" x2="120" y2="300" stroke="#EAE5DA" stroke-width="0.5" opacity="0.85"/>
+<!-- ─── Loader: the doors of Saal 3 part ─────────────────────────────── -->
+<div id="loader" aria-label="entering Saal 3">
+  <svg class="loader-svg" viewBox="0 0 600 800" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+    <line id="door-l" x1="300" y1="80" x2="300" y2="80" stroke="#EAE5DA" stroke-width="0.6" opacity="0.85"/>
+    <line id="door-r" x1="300" y1="720" x2="300" y2="720" stroke="#EAE5DA" stroke-width="0.6" opacity="0.85"/>
+    <line id="door-t" x1="300" y1="80" x2="300" y2="80" stroke="#EAE5DA" stroke-width="0.6" opacity="0.6"/>
   </svg>
-  <div class="loader-word" aria-hidden="true">
-    <em>nils frahm</em>
+  <div class="loader-block">
+    <div class="loader-time">20:48</div>
+    <div class="loader-place"><em>funkhaus berlin</em>&nbsp;·&nbsp;saal 3</div>
+    <div class="loader-line"><em>he arrived at the hall before anyone else</em></div>
   </div>
 </div>
 
-<!-- ─── Frame: four hairline corners, italic only ─── -->
+<!-- ─── Frame: italic only, low-contrast, persistent ─────────────────── -->
 <header class="frame" aria-hidden="true">
-  <span class="frame-tl"><em>nils frahm</em> — six works held</span>
-  <span class="frame-tr">saal 3 · funkhaus berlin</span>
-  <span class="frame-bl">52°29′ N · 13°30′ E</span>
+  <span class="frame-tl"><em>nils frahm</em>&nbsp;·&nbsp;une nuit à saal 3</span>
+  <span class="frame-tr">funkhaus berlin&nbsp;·&nbsp;52°29′ N 13°30′ E</span>
+  <span class="frame-bl" id="frame-coord">act —</span>
   <span class="frame-br" id="frame-now">—</span>
 </header>
 
-<!-- ─── La Pédale: the centred column of works ─── -->
-<main id="page" role="main">
-  <div class="cantus-rule" aria-hidden="true"><span></span></div>
+<!-- ─── The Hall: a continuous SVG architectural elevation ──────────── -->
+<main id="hall-stage" role="main" aria-label="Saal 3, the hall">
 
-  <ol id="works" role="list">
-    <!-- injected by script -->
-  </ol>
+  <!-- volumetric wash behind the geometry -->
+  <div class="sky" id="sky" aria-hidden="true"></div>
+  <div class="hall-wash" id="hallWash" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
 
-  <div id="caption" aria-live="polite">
-    <p id="cap-epigraph"><em>—</em></p>
-    <div id="cap-meta">
-      <span class="cap-room">—</span>
-      <span class="cap-sep"></span>
-      <span class="cap-method">—</span>
-    </div>
-  </div>
+  <svg id="hall" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs>
+      <linearGradient id="window-light" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"  stop-color="var(--win-top)"/>
+        <stop offset="100%" stop-color="var(--win-bottom)"/>
+      </linearGradient>
+      <linearGradient id="floorshade" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="rgba(0,0,0,0)"/>
+        <stop offset="100%" stop-color="rgba(0,0,0,0.65)"/>
+      </linearGradient>
+      <radialGradient id="lampglow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%"  stop-color="var(--lamp-glow)" stop-opacity="0.55"/>
+        <stop offset="50%" stop-color="var(--lamp-glow)" stop-opacity="0.18"/>
+        <stop offset="100%" stop-color="var(--lamp-glow)" stop-opacity="0"/>
+      </radialGradient>
+      <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+        <feGaussianBlur stdDeviation="1.2"/>
+      </filter>
+    </defs>
 
-  <!-- The Resonance: the horizontal sustain line drawn from cursor -->
-  <div id="resonance" aria-hidden="true">
-    <div class="res-line res-l"></div>
-    <div class="res-line res-r"></div>
-    <div class="res-halo"></div>
-  </div>
+    <!-- Lamp glow halo (volumetric) -->
+    <ellipse id="lamp-halo" cx="800" cy="280" rx="360" ry="220" fill="url(#lampglow)" />
+
+    <!-- Back wall: four tall arched windows, soviet-tall -->
+    <g id="windows" class="windows">
+      <g class="win" data-i="0">
+        <rect x="195" y="170" width="240" height="430" rx="0" fill="url(#window-light)"/>
+        <path d="M195,170 q120,-90 240,0" fill="url(#window-light)"/>
+        <line x1="195" y1="170" x2="195" y2="600" stroke="var(--ink)" stroke-width="0.6"/>
+        <line x1="435" y1="170" x2="435" y2="600" stroke="var(--ink)" stroke-width="0.6"/>
+        <path d="M195,170 q120,-90 240,0" fill="none" stroke="var(--ink)" stroke-width="0.6"/>
+        <line x1="315" y1="80"  x2="315" y2="600" stroke="var(--ink)" stroke-width="0.4" opacity="0.6"/>
+        <line x1="195" y1="380" x2="435" y2="380" stroke="var(--ink)" stroke-width="0.4" opacity="0.6"/>
+      </g>
+      <g class="win" data-i="1">
+        <rect x="490" y="170" width="240" height="430" fill="url(#window-light)"/>
+        <path d="M490,170 q120,-90 240,0" fill="url(#window-light)"/>
+        <line x1="490" y1="170" x2="490" y2="600" stroke="var(--ink)" stroke-width="0.6"/>
+        <line x1="730" y1="170" x2="730" y2="600" stroke="var(--ink)" stroke-width="0.6"/>
+        <path d="M490,170 q120,-90 240,0" fill="none" stroke="var(--ink)" stroke-width="0.6"/>
+        <line x1="610" y1="80"  x2="610" y2="600" stroke="var(--ink)" stroke-width="0.4" opacity="0.6"/>
+        <line x1="490" y1="380" x2="730" y2="380" stroke="var(--ink)" stroke-width="0.4" opacity="0.6"/>
+      </g>
+      <g class="win" data-i="2">
+        <rect x="870" y="170" width="240" height="430" fill="url(#window-light)"/>
+        <path d="M870,170 q120,-90 240,0" fill="url(#window-light)"/>
+        <line x1="870"  y1="170" x2="870"  y2="600" stroke="var(--ink)" stroke-width="0.6"/>
+        <line x1="1110" y1="170" x2="1110" y2="600" stroke="var(--ink)" stroke-width="0.6"/>
+        <path d="M870,170 q120,-90 240,0" fill="none" stroke="var(--ink)" stroke-width="0.6"/>
+        <line x1="990" y1="80"  x2="990" y2="600" stroke="var(--ink)" stroke-width="0.4" opacity="0.6"/>
+        <line x1="870" y1="380" x2="1110" y2="380" stroke="var(--ink)" stroke-width="0.4" opacity="0.6"/>
+      </g>
+      <g class="win" data-i="3">
+        <rect x="1165" y="170" width="240" height="430" fill="url(#window-light)"/>
+        <path d="M1165,170 q120,-90 240,0" fill="url(#window-light)"/>
+        <line x1="1165" y1="170" x2="1165" y2="600" stroke="var(--ink)" stroke-width="0.6"/>
+        <line x1="1405" y1="170" x2="1405" y2="600" stroke="var(--ink)" stroke-width="0.6"/>
+        <path d="M1165,170 q120,-90 240,0" fill="none" stroke="var(--ink)" stroke-width="0.6"/>
+        <line x1="1285" y1="80"  x2="1285" y2="600" stroke="var(--ink)" stroke-width="0.4" opacity="0.6"/>
+        <line x1="1165" y1="380" x2="1405" y2="380" stroke="var(--ink)" stroke-width="0.4" opacity="0.6"/>
+      </g>
+    </g>
+
+    <!-- the waveform on the back wall (morphs per act) -->
+    <path id="wave" d="M120,610 L1480,610"
+          fill="none" stroke="var(--bordeaux)" stroke-width="0.9" opacity="0.55"
+          stroke-linecap="round"/>
+
+    <!-- floor baseline + perspective lines + herringbone hint -->
+    <line x1="0" y1="690" x2="1600" y2="690" stroke="var(--ink)" stroke-width="0.7"/>
+    <g class="floor" stroke="var(--ink-2)" stroke-width="0.35" opacity="0.9" fill="none">
+      <line x1="0" y1="720" x2="1600" y2="720"/>
+      <line x1="0" y1="760" x2="1600" y2="760"/>
+      <line x1="0" y1="810" x2="1600" y2="810"/>
+      <line x1="0" y1="870" x2="1600" y2="870"/>
+      <!-- herringbone strokes -->
+      <g id="herring"></g>
+    </g>
+    <rect x="0" y="690" width="1600" height="210" fill="url(#floorshade)" opacity="0.45"/>
+
+    <!-- Pendant lamp (centered, swings) -->
+    <g id="lamp" class="lamp">
+      <line x1="800" y1="0" x2="800" y2="240" stroke="var(--ink)" stroke-width="0.5"/>
+      <path d="M770,240 L830,240 L820,290 L780,290 Z" fill="var(--lamp-shade)" stroke="var(--ink)" stroke-width="0.5"/>
+      <ellipse cx="800" cy="290" rx="22" ry="6" fill="var(--lamp-glow)" opacity="0.9"/>
+      <circle cx="800" cy="290" r="3" fill="var(--lamp-glow)"/>
+    </g>
+
+    <!-- Klavins Modell 370 (vertical piano elevation), stage right -->
+    <g id="piano">
+      <rect x="1330" y="240" width="32" height="450" fill="var(--ink-2)" opacity="0.9"/>
+      <rect x="1326" y="238" width="40" height="6" fill="var(--ink)"/>
+      <line x1="1346" y1="240" x2="1346" y2="690" stroke="var(--bone-2)" stroke-width="0.3" opacity="0.4"/>
+      <rect x="1318" y="660" width="56" height="30" fill="var(--ink-2)"/>
+      <rect x="1318" y="660" width="56" height="3"  fill="var(--bone)" opacity="0.85"/>
+      <g stroke="var(--ink)" stroke-width="0.3" opacity="0.7">
+        <line x1="1322" y1="664" x2="1322" y2="685"/>
+        <line x1="1330" y1="664" x2="1330" y2="685"/>
+        <line x1="1338" y1="664" x2="1338" y2="685"/>
+        <line x1="1346" y1="664" x2="1346" y2="685"/>
+        <line x1="1354" y1="664" x2="1354" y2="685"/>
+        <line x1="1362" y1="664" x2="1362" y2="685"/>
+      </g>
+    </g>
+
+    <!-- Console (low silhouette), stage left -->
+    <g id="console">
+      <rect x="120" y="640" width="200" height="50" fill="var(--ink-2)" opacity="0.95"/>
+      <rect x="120" y="640" width="200" height="3"  fill="var(--bone-2)" opacity="0.4"/>
+      <g fill="var(--bone)" opacity="0.5">
+        <circle cx="148" cy="660" r="2"/><circle cx="170" cy="660" r="2"/>
+        <circle cx="192" cy="660" r="2"/><circle cx="214" cy="660" r="2"/>
+        <circle cx="236" cy="660" r="2"/><circle cx="258" cy="660" r="2"/>
+        <circle cx="280" cy="660" r="2"/><circle cx="302" cy="660" r="2"/>
+      </g>
+      <g fill="var(--bordeaux)" opacity="0.7">
+        <rect x="146" y="676" width="6"  height="2"/>
+        <rect x="168" y="676" width="14" height="2"/>
+        <rect x="190" y="676" width="3"  height="2"/>
+        <rect x="212" y="676" width="20" height="2"/>
+        <rect x="234" y="676" width="8"  height="2"/>
+        <rect x="256" y="676" width="12" height="2"/>
+        <rect x="278" y="676" width="5"  height="2"/>
+        <rect x="300" y="676" width="11" height="2"/>
+      </g>
+    </g>
+
+    <!-- Empty chair at centre stage -->
+    <g id="chair">
+      <line x1="780" y1="640" x2="780" y2="690" stroke="var(--ink)" stroke-width="0.6"/>
+      <line x1="820" y1="640" x2="820" y2="690" stroke="var(--ink)" stroke-width="0.6"/>
+      <line x1="775" y1="660" x2="825" y2="660" stroke="var(--ink)" stroke-width="0.6"/>
+      <line x1="780" y1="612" x2="780" y2="660" stroke="var(--ink)" stroke-width="0.6"/>
+    </g>
+
+    <!-- A figure: a single seated silhouette at the piano. Appears in act 'felt' onward, fades out at 'departure'. -->
+    <g id="figure" opacity="0">
+      <ellipse cx="1304" cy="640" rx="14" ry="6" fill="var(--ink)"/>
+      <path d="M1294,640 Q1290,604 1304,594 Q1318,604 1314,640 Z" fill="var(--ink)"/>
+      <circle cx="1304" cy="588" r="6" fill="var(--ink)"/>
+      <line x1="1304" y1="606" x2="1322" y2="654" stroke="var(--ink)" stroke-width="0.7"/>
+    </g>
+
+    <!-- Floor cantus rule (subtle horizon mark) -->
+    <line x1="60" y1="688" x2="1540" y2="688" stroke="var(--bone-2)" stroke-width="0.3" opacity="0.35"/>
+  </svg>
 </main>
 
-<!-- ─── Bottom whisper: invitation to hold the pedal ─── -->
-<footer class="invitation">
-  <p id="invite">
-    <em>hold</em>&nbsp;&nbsp;the room to listen
-    <span class="invite-key">— space, or press</span>
+<!-- ─── Time of night (the editorial "chyron") ──────────────────────── -->
+<div class="timecard">
+  <div class="time" id="time">20:48</div>
+  <div class="time-arc" aria-hidden="true">
+    <span class="arc-from">dusk</span>
+    <span class="arc-rule"><span id="arcRule"></span></span>
+    <span class="arc-to">dawn</span>
+  </div>
+</div>
+
+<!-- ─── The Prose: one line per act, dispersion / arrival typography ── -->
+<section class="prose-stage" aria-live="polite">
+  <p class="prose-act">
+    <span class="act-num" id="actNum">i.</span>
+    <span class="act-name" id="actName">arrival</span>
   </p>
+  <p class="prose-line" id="proseLine"></p>
+  <p class="prose-cite" id="proseCite"><em>—</em></p>
+</section>
+
+<!-- ─── The Rail: 8 hairline ticks across the bottom, current filled ── -->
+<nav id="rail" aria-label="acts of the night">
+  <!-- injected by JS -->
+</nav>
+
+<!-- ─── Invitation + colophon ───────────────────────────────────────── -->
+<footer class="invitation">
+  <p id="invite"><em>scroll, arrows, or drag</em><span class="invite-key">— time advances</span></p>
   <a id="colophon" href="https://velocity.studio" target="_blank" rel="noopener noreferrer" aria-label="Velocity atelier">
     <em>a Velocity atelier work</em>
     <span class="colo-sep"></span>
@@ -74,9 +225,9 @@
   </a>
 </footer>
 
-<!-- ─── Cursor: la touche, a thin baton with a soft halo ─── -->
+<!-- ─── Cursor: la veilleuse — the candle that walks the hall ───────── -->
 <div id="cursor" aria-hidden="true">
-  <div class="cur-baton"></div>
+  <div class="cur-flame"></div>
   <div class="cur-halo"></div>
 </div>
 
