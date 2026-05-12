@@ -1,393 +1,292 @@
 /* ───────────────────────────────────────────────────────────────────────
-   Nils Frahm — "Feutre"
-   Loader → 3D column slider → strike-explode particles → detail fold.
-   No libraries. Pure Canvas + CSS 3D + RAF.
+   Nils Frahm — La Pédale
+   Loader (cantus firmus) → page reveal → six works in a hushed column.
+   The cursor is a baton. Hold space (or press-and-hold) to sustain
+   the pedal: the room resonates within a radius of ~340px, type
+   clarifies, a hairline draws horizontally across the page.
    ─────────────────────────────────────────────────────────────────────── */
 
 const WORKS = [
   {
     num: '01', year: '2011', title: 'Felt',
-    epigraph: 'He pressed felt upon the hammers so he would not wake his neighbours. The microphones, placed inside the instrument, heard what the room could not.',
-    instrument: 'Upright piano, modified. Two condenser microphones, close.',
-    method: 'Muffled attack. Ambient decay. Late-night restraint as compositional principle.',
-    room: 'Berlin, a rented apartment.'
+    epigraph: 'A felt cloth, lowered onto the hammers, so the night might keep its quiet. The microphones, placed inside, heard what the room could not.',
+    room: 'a Berlin apartment',
+    method: 'muffled attack, ambient decay'
   },
   {
     num: '02', year: '2013', title: 'Spaces',
-    epigraph: 'A two-year collage of live rooms, stitched into a single breathing document. The audience is kept in, not edited out.',
-    instrument: 'Pianos and synthesizers from thirty-odd stages.',
-    method: 'Live recordings assembled as a mosaic. Nothing re-performed in the studio.',
-    room: 'Thirty venues across two continents.'
+    epigraph: 'Two years of rooms, stitched into a single continuous breath. The audience kept in, never edited out.',
+    room: 'thirty venues',
+    method: 'live mosaic, no studio retake'
   },
   {
     num: '03', year: '2015', title: 'Solo',
-    epigraph: 'One take. No overdubs. Performed on the Klavins Modell 370 — a vertical piano three metres tall. Released on Piano Day, the 88th of the year.',
-    instrument: 'Klavins Modell 370 — 370 cm, one string per key.',
-    method: 'Improvised, single sitting. The first Piano Day gift.',
-    room: 'Vác, Hungary — the Klavins workshop.'
+    epigraph: 'One sitting. No overdubs. Performed on the Klavins Modell 370, three metres tall, one string per key. Released on the eighty-eighth day.',
+    room: 'Vác · the Klavins workshop',
+    method: 'improvised in a single take'
   },
   {
     num: '04', year: '2018', title: 'All Melody',
-    epigraph: 'After two years of building, a room at Funkhaus Berlin opened its doors. The record is what the room allowed him to finally hear.',
-    instrument: 'Pipe organ, custom mixing console, ninety-two stops of brass and wood.',
-    method: 'Written into the architecture of Saal 3 as it was built around him.',
-    room: 'Funkhaus Berlin, Saal 3.'
+    epigraph: 'After two years of building, the door of Saal 3 was opened. The record is what the room finally let him hear.',
+    room: 'Saal 3 · Funkhaus',
+    method: 'composed into the architecture'
   },
   {
     num: '05', year: '2022', title: 'Music for Animals',
-    epigraph: 'Three hours, ten pieces. A record that refuses to be background and refuses to demand attention. It waits, as a forest waits.',
-    instrument: 'Arp 2600, synclavier, celesta, the patient ones.',
-    method: 'Long form as compositional ethics. No chorus. No release.',
-    room: 'Saal 3, returned to after the tour.'
+    epigraph: 'Three hours, ten pieces. A record that refuses to be background and refuses to demand attention. It waits, the way a forest waits.',
+    room: 'Saal 3, after the tour',
+    method: 'long form as ethics'
   },
   {
     num: '06', year: '2025', title: 'Night + Day',
-    epigraph: 'A diptych. Two rooms of the same house. Night is the room with the window left open; Day is the room the sun walks through.',
-    instrument: 'Una Corda, upright, Rhodes, and the first light on the console.',
-    method: 'Composed at opposite hours. Never heard together until the sequence was final.',
-    room: 'Funkhaus, dawn to dawn.'
+    epigraph: 'A diptych. Two rooms of the same house. Night is the room with the window left open. Day is the room the sun walks through.',
+    room: 'Funkhaus · dawn to dawn',
+    method: 'composed at opposite hours'
   }
 ];
 
-const STEP = 360 / WORKS.length; // 60° per hammer
-
-/* ─── elements ─────────────────────────────────────────────────────── */
-const column   = document.getElementById('column');
-const stage    = document.getElementById('stage');
-const rail     = document.getElementById('rail');
-const cursor   = document.getElementById('cursor');
-const particles= document.getElementById('particles');
-const detail   = document.getElementById('detail');
+/* ─── elements ────────────────────────────────────────────────────── */
 const loader   = document.getElementById('loader');
-const thread   = document.getElementById('loader-thread');
-const loaderHammer = document.getElementById('loader-hammer');
-const loaderWord   = document.querySelector('.loader-word');
-const loaderMeta   = document.querySelector('.loader-meta');
-const loaderCount  = document.getElementById('loader-count');
-const coordNow     = document.getElementById('coord-now');
-const hallThread   = document.getElementById('thread');
+const cantus   = document.getElementById('cantus');
+const loaderWord = document.querySelector('.loader-word');
+const page     = document.getElementById('page');
+const frame    = document.querySelector('.frame');
+const invitation = document.querySelector('.invitation');
+const worksEl  = document.getElementById('works');
+const cursor   = document.getElementById('cursor');
+const halo     = document.querySelector('.res-halo');
+const resL     = document.querySelector('.res-l');
+const resR     = document.querySelector('.res-r');
+const caption  = document.getElementById('caption');
+const capEpi   = document.getElementById('cap-epigraph');
+const capRoom  = caption.querySelector('.cap-room');
+const capMet   = caption.querySelector('.cap-method');
+const frameNow = document.getElementById('frame-now');
 
-/* ─── build hammers ────────────────────────────────────────────────── */
+/* ─── build the column ────────────────────────────────────────────── */
 WORKS.forEach((w, i) => {
-  const el = document.createElement('button');
-  el.className = 'hammer';
-  el.dataset.index = i;
-  el.style.transform =
-    `rotateX(${-i * STEP}deg) translateZ(var(--column-radius))`;
-  el.innerHTML = `
-    <div class="hammer-shank"></div>
-    <div class="hammer-inner">
-      <div class="hammer-head" aria-hidden="true"></div>
-      <div class="hammer-text">
-        <span class="hammer-title">${w.title}</span>
-        <span class="hammer-meta">
-          <span>${w.num}</span><span>${w.year}</span>
-        </span>
-      </div>
-    </div>`;
-  el.setAttribute('aria-label', `${w.num} · ${w.title} · ${w.year}. Click to strike.`);
-  column.appendChild(el);
+  const li = document.createElement('li');
+  li.className = 'work';
+  li.dataset.index = i;
+  li.setAttribute('role', 'listitem');
 
-  const rEl = document.createElement('button');
-  rEl.className = 'rail-item';
-  rEl.dataset.index = i;
-  rEl.innerHTML = `
-    <span class="rail-num">${w.num}</span>
-    <span class="rail-tick"></span>`;
-  rEl.setAttribute('aria-label', `Jump to ${w.title}`);
-  rail.appendChild(rEl);
+  const letters = [...w.title].map((ch, k) =>
+    `<span class="ltr" style="--li:${k}">${ch === ' ' ? '&nbsp;' : ch}</span>`
+  ).join('');
+
+  li.innerHTML = `
+    <span class="w-mark" aria-hidden="true"></span>
+    <span class="w-num">${w.num}</span>
+    <span class="w-title" data-title="${w.title}">${letters}</span>
+    <span class="w-year">${w.year}</span>
+  `;
+  worksEl.appendChild(li);
 });
+const works = [...document.querySelectorAll('.work')];
 
-const hammers = [...document.querySelectorAll('.hammer')];
-const railItems = [...document.querySelectorAll('.rail-item')];
-
-/* ─── column rotation state ───────────────────────────────────────── */
-let angle = 0;          // displayed angle (degrees)
-let target = 0;         // target angle
+/* ─── active state + dispersion / arrival ─────────────────────────── */
 let active = 0;
-let struckLock = false; // while a strike + detail is open
+let busy = false;
+
+function setActive(next, opts = {}) {
+  if (busy || next === active) {
+    updateDistances();
+    return;
+  }
+  busy = true;
+
+  const prev = active;
+  active = ((next % WORKS.length) + WORKS.length) % WORKS.length;
+
+  // disperse previous title — letters drift apart by their own kerning
+  const prevTitle = works[prev].querySelector('.w-title');
+  const prevLetters = [...prevTitle.querySelectorAll('.ltr')];
+  const center = (prevLetters.length - 1) / 2;
+  prevLetters.forEach((el, k) => {
+    const d = (k - center);
+    const dx = d * 22 + (Math.random() * 8 - 4);
+    el.style.transform = `translateX(${dx}px) translateY(${(Math.random()*6-3)}px)`;
+  });
+  works[prev].classList.add('dispersing');
+  works[prev].classList.remove('active');
+
+  // arrive new title — staggered blur-up
+  const nextEl = works[active];
+  const nextLetters = [...nextEl.querySelectorAll('.ltr')];
+  nextLetters.forEach((el) => { el.style.transform = ''; });
+  nextEl.classList.remove('dispersing');
+  // force reflow before re-arming animation
+  void nextEl.offsetWidth;
+  nextEl.classList.add('arriving', 'active');
+
+  updateDistances();
+  updateCaption(active);
+
+  // unlock + cleanup
+  setTimeout(() => {
+    works[prev].classList.remove('dispersing');
+    works[prev].querySelectorAll('.ltr').forEach(el => el.style.transform = '');
+    nextEl.classList.remove('arriving');
+    busy = false;
+  }, 1700);
+}
+
+function updateDistances() {
+  works.forEach((el, i) => {
+    if (i === active) {
+      el.removeAttribute('data-dist');
+      return;
+    }
+    el.dataset.dist = String(Math.min(5, Math.abs(i - active)));
+  });
+}
+
+function updateCaption(i) {
+  caption.classList.remove('visible');
+  setTimeout(() => {
+    const w = WORKS[i];
+    capEpi.innerHTML = `<em>"</em>${w.epigraph}<em>"</em>`;
+    capRoom.textContent = w.room;
+    capMet.textContent = w.method;
+    caption.classList.add('visible');
+  }, 320);
+}
+
+/* ─── inputs ──────────────────────────────────────────────────────── */
 let lastWheel = 0;
-
-function setActive(i) {
-  active = ((i % WORKS.length) + WORKS.length) % WORKS.length;
-  target = -active * STEP;
-  hammers.forEach((h, k) => h.classList.toggle('active', k === active));
-  railItems.forEach((r, k) => r.classList.toggle('active', k === active));
-}
-
-function raf() {
-  angle += (target - angle) * 0.08;
-  column.style.transform = `translate(-50%, -50%) rotateX(${angle}deg)`;
-  requestAnimationFrame(raf);
-}
-requestAnimationFrame(raf);
-
-/* ─── navigation inputs ───────────────────────────────────────────── */
 window.addEventListener('wheel', (e) => {
-  if (struckLock) return;
   const now = performance.now();
-  if (now - lastWheel < 280) return;
+  if (now - lastWheel < 320) return;
   lastWheel = now;
   setActive(active + (e.deltaY > 0 ? 1 : -1));
 }, { passive: true });
 
 window.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && struckLock) { closeDetail(); return; }
-  if (struckLock) return;
-  if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { setActive(active + 1); }
-  if (e.key === 'ArrowUp' || e.key === 'ArrowLeft')   { setActive(active - 1); }
-  if (e.key === 'Enter' || e.key === ' ') {
+  if (e.code === 'Space') {
     e.preventDefault();
-    strike(active);
+    if (!e.repeat) setPedal(true);
+    return;
   }
+  if (e.key === 'ArrowDown' || e.key === 'ArrowRight') setActive(active + 1);
+  if (e.key === 'ArrowUp'   || e.key === 'ArrowLeft')  setActive(active - 1);
+  if (e.key === 'Enter') setPedal(true);
+  if (e.key === 'Escape') setPedal(false);
+});
+window.addEventListener('keyup', (e) => {
+  if (e.code === 'Space' || e.key === 'Enter') setPedal(false);
 });
 
-/* drag (pointer) */
-let dragging = false, dragStartY = 0, dragStartAngle = 0;
-window.addEventListener('pointerdown', (e) => {
-  if (struckLock) return;
-  if (e.target.closest('#detail') || e.target.closest('#colophon')) return;
-  dragging = true;
-  dragStartY = e.clientY;
-  dragStartAngle = target;
-});
-window.addEventListener('pointermove', (e) => {
-  if (!dragging) return;
-  const dy = e.clientY - dragStartY;
-  target = dragStartAngle + dy * 0.35;
-});
-window.addEventListener('pointerup', () => {
-  if (!dragging) return;
-  dragging = false;
-  // snap to nearest
-  const nearest = Math.round(-target / STEP);
-  setActive(nearest);
+works.forEach(el => {
+  el.addEventListener('click', () => setActive(+el.dataset.index));
 });
 
-/* rail clicks */
-railItems.forEach(r => r.addEventListener('click', () => {
-  if (struckLock) return;
-  setActive(+r.dataset.index);
-}));
-
-/* hammer hover / strike */
-hammers.forEach(h => {
-  h.addEventListener('mouseenter', () => {
-    if (+h.dataset.index === active) cursor.classList.add('hover');
-    h.classList.add('hovered');
-  });
-  h.addEventListener('mouseleave', () => {
-    cursor.classList.remove('hover');
-    h.classList.remove('hovered');
-  });
-  h.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (struckLock) return;
-    const i = +h.dataset.index;
-    if (i !== active) { setActive(i); return; }
-    strike(i);
-  });
+/* drag/touch is intentionally absent — silence is the default mode */
+/* but on touch devices we expose pedal via touch-and-hold */
+let touchHoldTimer = null;
+document.addEventListener('touchstart', () => {
+  touchHoldTimer = setTimeout(() => setPedal(true), 220);
+}, { passive: true });
+document.addEventListener('touchend', () => {
+  clearTimeout(touchHoldTimer);
+  setPedal(false);
 });
 
-/* ─── the strike: particles + detail ──────────────────────────────── */
-const ctx = particles.getContext('2d');
-function sizeCanvas() {
-  particles.width  = window.innerWidth  * devicePixelRatio;
-  particles.height = window.innerHeight * devicePixelRatio;
-  particles.style.width  = window.innerWidth  + 'px';
-  particles.style.height = window.innerHeight + 'px';
-  ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+/* ─── pedal mechanic ──────────────────────────────────────────────── */
+let pedal = false;
+function setPedal(on) {
+  if (pedal === on) return;
+  pedal = on;
+  document.body.classList.toggle('pedal', on);
+  if (!on) works.forEach(w => w.classList.remove('heard'));
 }
-sizeCanvas();
-window.addEventListener('resize', sizeCanvas);
 
-let P = []; // particles
-const COLORS = ['#E8E2D4','#CFC9BB','#A84B2A','#8A8580','#54524C'];
+/* mouse-press also engages the pedal — natural for a "hold" gesture */
+document.addEventListener('pointerdown', (e) => {
+  // ignore clicks on actual interactive elements (works, colophon)
+  if (e.target.closest('a, .work, button')) return;
+  setPedal(true);
+});
+document.addEventListener('pointerup', () => setPedal(false));
+document.addEventListener('pointercancel', () => setPedal(false));
+window.addEventListener('blur', () => setPedal(false));
 
-function burst(x, y, count) {
-  for (let i = 0; i < count; i++) {
-    const a = Math.random() * Math.PI * 2;
-    const s = Math.pow(Math.random(), 1.4) * 9 + 0.6;
-    P.push({
-      x, y,
-      vx: Math.cos(a) * s,
-      vy: Math.sin(a) * s - 1.2,
-      r: Math.random() * 1.6 + 0.4,
-      life: 1,
-      decay: 0.004 + Math.random() * 0.006,
-      color: COLORS[(Math.random() * COLORS.length) | 0],
-      g: 0.04 + Math.random() * 0.06
+/* ─── cursor follow + resonance positioning ──────────────────────── */
+let mx = innerWidth / 2, my = innerHeight / 2;
+let cx = mx, cy = my;
+
+window.addEventListener('pointermove', (e) => { mx = e.clientX; my = e.clientY; });
+
+function loop() {
+  cx += (mx - cx) * 0.18;
+  cy += (my - cy) * 0.18;
+  cursor.style.transform = `translate(${cx}px, ${cy}px)`;
+
+  // halo follows precisely (no easing) — sense of the held column of light
+  if (halo) {
+    halo.style.left = `${mx}px`;
+    halo.style.top  = `${my}px`;
+  }
+  // resonance lines anchor to cursor Y, draw outward to edges
+  if (resL && resR) {
+    resL.style.top = resR.style.top = `${my}px`;
+    resL.style.right = `${innerWidth - mx}px`;
+    resR.style.left  = `${mx}px`;
+  }
+
+  // when pedal is held, "hear" the works that fall within the resonance radius
+  if (pedal) {
+    const R = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--reso')) || 340;
+    works.forEach(el => {
+      const r = el.getBoundingClientRect();
+      const ex = r.left + r.width / 2;
+      const ey = r.top  + r.height / 2;
+      const d = Math.hypot(mx - ex, my - ey);
+      el.classList.toggle('heard', d < R);
     });
   }
+
+  requestAnimationFrame(loop);
 }
+requestAnimationFrame(loop);
 
-function tick() {
-  ctx.clearRect(0, 0, particles.width, particles.height);
-  for (let i = P.length - 1; i >= 0; i--) {
-    const p = P[i];
-    p.vy += p.g;
-    p.vx *= 0.985;
-    p.vy *= 0.992;
-    p.x += p.vx;
-    p.y += p.vy;
-    p.life -= p.decay;
-    if (p.life <= 0) { P.splice(i, 1); continue; }
-    ctx.globalAlpha = Math.max(0, p.life);
-    ctx.fillStyle = p.color;
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  ctx.globalAlpha = 1;
-  requestAnimationFrame(tick);
-}
-requestAnimationFrame(tick);
-
-function strike(i) {
-  struckLock = true;
-  const h = hammers[i];
-  const head = h.querySelector('.hammer-head');
-  const rect = head.getBoundingClientRect();
-  const cx = rect.left + rect.width / 2;
-  const cy = rect.top + rect.height / 2;
-
-  cursor.classList.add('strike');
-  setTimeout(() => cursor.classList.remove('strike'), 520);
-
-  h.classList.add('striking');
-
-  // two-stage burst: wood dust on pull, felt + ember on impact
-  setTimeout(() => burst(cx, cy - 18, 240), 160);
-  setTimeout(() => {
-    const r2 = head.getBoundingClientRect();
-    burst(r2.left + r2.width/2, r2.top + r2.height/2, window.innerWidth < 820 ? 900 : 1700);
-  }, 440);
-
-  setTimeout(() => {
-    stage.classList.add('struck');
-    openDetail(i);
-  }, 560);
-}
-
-/* ─── detail fold ─────────────────────────────────────────────────── */
-const dNum = document.getElementById('detail-num');
-const dYear= document.getElementById('detail-year');
-const dTitle = document.getElementById('detail-title');
-const dEpi = document.getElementById('detail-epigraph');
-const dInst = document.getElementById('detail-instrument');
-const dMeth = document.getElementById('detail-method');
-const dRoom = document.getElementById('detail-room');
-const dDots = document.getElementById('detail-dots');
-const dClose = document.getElementById('detail-close');
-
-function openDetail(i) {
-  const w = WORKS[i];
-  dNum.textContent = w.num;
-  dYear.textContent = w.year;
-  dTitle.textContent = w.title;
-  dEpi.textContent = '"' + w.epigraph + '"';
-  dInst.textContent = w.instrument;
-  dMeth.textContent = w.method;
-  dRoom.textContent = w.room;
-  // breath-mark dots — one per pseudo-"track", pulsing one at a time
-  dDots.innerHTML = '';
-  const n = 10;
-  for (let k = 0; k < n; k++) {
-    const s = document.createElement('span');
-    dDots.appendChild(s);
-  }
-  let k = 0;
-  const spans = [...dDots.children];
-  if (window._breath) clearInterval(window._breath);
-  window._breath = setInterval(() => {
-    spans.forEach(s => s.classList.remove('pulse'));
-    spans[k].classList.add('pulse');
-    k = (k + 1) % spans.length;
-  }, 520);
-
-  detail.classList.add('open');
-  detail.setAttribute('aria-hidden', 'false');
-}
-
-function closeDetail() {
-  detail.classList.remove('open');
-  detail.setAttribute('aria-hidden', 'true');
-  if (window._breath) clearInterval(window._breath);
-  // restore hammer
-  setTimeout(() => {
-    hammers.forEach(h => h.classList.remove('striking'));
-    stage.classList.remove('struck');
-    struckLock = false;
-  }, 700);
-}
-dClose.addEventListener('click', closeDetail);
-
-/* ─── cursor ──────────────────────────────────────────────────────── */
-let mx = innerWidth/2, my = innerHeight/2;
-let cx = mx, cy = my;
-window.addEventListener('pointermove', (e) => { mx = e.clientX; my = e.clientY; });
-function cursorLoop() {
-  cx += (mx - cx) * 0.22;
-  cy += (my - cy) * 0.22;
-  cursor.style.transform = `translate(${cx}px, ${cy}px)`;
-  requestAnimationFrame(cursorLoop);
-}
-cursorLoop();
-
-/* ─── coord clock ─────────────────────────────────────────────────── */
+/* ─── frame clock — italic only, low contrast ────────────────────── */
 function tickClock() {
   const d = new Date();
-  const hh = String(d.getUTCHours()).padStart(2,'0');
-  const mm = String(d.getUTCMinutes()).padStart(2,'0');
-  const ss = String(d.getUTCSeconds()).padStart(2,'0');
-  coordNow.textContent = `${hh}:${mm}:${ss} UTC`;
+  const h = String(d.getUTCHours()).padStart(2, '0');
+  const m = String(d.getUTCMinutes()).padStart(2, '0');
+  frameNow.textContent = `${h}h ${m} · UTC, the room`;
 }
-tickClock(); setInterval(tickClock, 1000);
+tickClock(); setInterval(tickClock, 30 * 1000);
 
-/* ─── loader sequence ─────────────────────────────────────────────── */
+/* ─── loader sequence: cantus draws, wordmark resonates in ─────── */
 function runLoader() {
   const start = performance.now();
-  const DUR = 2100;
-  function animate(t) {
+  const DUR = 2400;
+  function step(t) {
     const p = Math.min(1, (t - start) / DUR);
-    // draw the Modell 370 thread
-    const y = 60 + (740 - 60) * easeOutCubic(p);
-    thread.setAttribute('y2', y);
-    loaderHammer.setAttribute('cy', y);
-    loaderHammer.setAttribute('r', 1.4 + p * 3.2);
-    // count up 00 / 88
-    loaderCount.textContent = `${String(Math.floor(p * 88)).padStart(2,'0')} / 88`;
-    if (p < 1) requestAnimationFrame(animate);
-    else afterThread();
+    const e = 1 - Math.pow(1 - p, 3);
+    cantus.setAttribute('x2', String(120 + (760) * e));
+    if (p < 1) requestAnimationFrame(step);
+    else afterCantus();
   }
-  requestAnimationFrame(animate);
+  requestAnimationFrame(step);
 }
-function easeOutCubic(t){ return 1 - Math.pow(1-t, 3); }
-
-function afterThread() {
+function afterCantus() {
   loaderWord.classList.add('lit');
-  loaderMeta.classList.add('lit');
   setTimeout(() => {
     loader.classList.add('gone');
-    setTimeout(enterStage, 900);
-  }, 1800);
+    setTimeout(enter, 1100);
+  }, 1900);
 }
-
-function enterStage() {
-  stage.classList.add('visible');
-  document.getElementById('hud-top').classList.add('visible');
-  rail.classList.add('visible');
-  document.getElementById('hint').classList.add('visible');
-  document.getElementById('colophon').classList.add('visible');
-  setActive(0);
-  // subtle hall thread (echo of Modell 370) slowly draws
-  let y = 0;
-  const grow = () => {
-    y += 3;
-    hallThread.setAttribute('y2', Math.min(y, 820));
-    if (y < 820) requestAnimationFrame(grow);
-  };
-  requestAnimationFrame(grow);
+function enter() {
+  frame.classList.add('visible');
+  page.classList.add('visible');
+  invitation.classList.add('visible');
+  // first arrival — no dispersion needed; just mark active and reveal caption
+  works[active].classList.add('active', 'arriving');
+  updateDistances();
+  updateCaption(active);
+  setTimeout(() => works[active].classList.remove('arriving'), 1700);
 }
 
 runLoader();
